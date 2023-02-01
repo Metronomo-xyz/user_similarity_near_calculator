@@ -2,6 +2,7 @@ from flask import Flask, request
 import config as c
 import google_cloud_storage_utils as csu
 import time
+import pandas as pd
 
 similarity_matrix = []
 
@@ -20,13 +21,20 @@ def get_similarity():
     if request.method == 'POST':
         file = request.files['file']
         wallets_list = file.read().decode().split("\r\n")
+    print("wallet list : " + str(wallets_list))
 
     global similarity_matrix
 
-    result = []
+    result = pd.DataFrame()
     for w in wallets_list:
-        result = result + list(filter(lambda x: get_similarity_by_wallet(w), similarity_matrix))
-    return ",".join(result)
+        print(w)
+        print("tmp : ")
+        print(similarity_matrix[(similarity_matrix.iloc[:,0] == "zzzarathustra.near") & (similarity_matrix.iloc[:,2] >= 0.1) & (similarity_matrix.iloc[:,2] <= 1)].iloc[:,1])
+        result = pd.concat([result, similarity_matrix[(similarity_matrix.iloc[:,0] == "zzzarathustra.near") & (similarity_matrix.iloc[:,2] >= 0.1) & (similarity_matrix.iloc[:,2] <= 1)].iloc[:,1]])
+    result = result.drop_duplicates().iloc[:,0]
+    print(type(result))
+    print(result)
+    return ",".join(result.to_list())
 
 @app.route("/load_similarity/", methods=['GET'])
 def load_similarity():
