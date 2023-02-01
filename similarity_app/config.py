@@ -6,7 +6,7 @@ All the constants related to specific connectors have name of the connector in t
 MetronomoTXCloudStorageConnector_DEFAULT_NETWORK = "mainnet"
 MetronomoTXCloudStorageConnector_DEFAULT_BUCKET_NAME = "near-data"
 MetronomoTXCloudStorageConnector_DEFAULT_GRANULARITY = "daily"
-MetronomoTXCloudStorageConnector_TOKEN_JSON_PATH = '../web3advertisement-b54340ad58ad.json'
+MetronomoTXCloudStorageConnector_TOKEN_JSON_PATH = '../../web3advertisement-b54340ad58ad.json'
 MetronomoTXCloudStorageConnector_LOCAL_TOKEN_JSON_PATH = 'C:/Users/yaroslav/Documents/JupyterNotebooks/web3advertisement-b54340ad58ad.json'
 MetronomoTXCloudStorageConnector_LOCAL_TEST_JSON_WITHOUT_KEY = 'C:/Users/yaroslav/Documents/Metronomo/power_users/test_json_without_key.json'
 MetronomoTXCloudStorageConnector_LOCAL_TEST_JSON_WITH_NO_PERMISSIONS = 'C:/Users/yaroslav/Documents/Metronomo/power_users/web3advertisement-0a5600f53222.json'

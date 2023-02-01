@@ -1,6 +1,7 @@
 from flask import Flask, request
 import config as c
 import google_cloud_storage_utils as csu
+import time
 
 similarity_matrix = []
 
@@ -36,8 +37,12 @@ def load_similarity():
         print(args["bucket"])
         print(args["local"])
 
-    if (args["local"]):
+    if (args["local"] == "True"):
         token_json_path = c.MetronomoTXCloudStorageConnector_LOCAL_TOKEN_JSON_PATH
+        print("local path")
+    else:
+        print("server path")
+        token_json_path = c.MetronomoTXCloudStorageConnector_TOKEN_JSON_PATH
 
     bucket_name = args["bucket"]
     bucket = csu.get_bucket(token_json_path, bucket_name)
@@ -47,10 +52,11 @@ def load_similarity():
     print("similarity matrix: ")
     print(similarity_matrix)
 
+    start_time = time.time()
     tmp = csu.get_dataframe_from_blob(bucket, args["path"], token_json_path, fields=None)
     similarity_matrix = tmp
     del tmp
-
+    print(time.time() - start_time)
     print("updated similarity matrix")
     print(similarity_matrix)
     return "well done!"
