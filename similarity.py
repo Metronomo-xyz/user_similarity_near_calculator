@@ -1,7 +1,7 @@
 import scipy.sparse as ss
 import numpy as np
-import pandas as pd
 import math
+import time
 
 def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPercentile=None, removeContracts=None):# -> ss.coo_matrix:
     if (removeWalletsPercentile):
@@ -85,25 +85,16 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
     common_contracts = m1.dot(m2).tocoo()
     print(str((common_contracts.data.nbytes + common_contracts.row.nbytes + common_contracts.col.nbytes) / 1024 / 1024 / 1024))
 
-    a = data.groupby("index_signer").count().apply(lambda x: math.sqrt(x), axis=1)
+    a = data.groupby("index_signer").count().apply(lambda x: math.sqrt(x), axis=1).to_dict()
     print("a:")
     print(a)
 
-    signers_index = signers.set_index("index")
-    receivers_index = receivers.set_index("index")
-    signers.to_csv("signers.csv")
-    receivers.to_csv("receivers.csv")
-    row = []
-    col = []
-    data_similarity = [0 for i in range(len(common_contracts.data))]
+    signers_index = signers.set_index("index").to_dict()["signer_account_id"]
     print("number of entries : " + str(len(common_contracts.data)))
     print("calculating similarity")
-    for i in range(len(common_contracts.data)):
-        if (i % 1000000 == 0):
-            print(i)
 
-        row.append(signers_index.loc[common_contracts.row[i]][0])
-        col.append(signers_index.loc[common_contracts.col[i]][0])
-        data_similarity[i] = common_contracts.data[i] / (a.loc[common_contracts.row[i]] * a.loc[common_contracts.col[i]])
+    row = [signers_index[idx] for idx in common_contracts.row]
+    col = [signers_index[idx] for idx in common_contracts.col]
+    data_similarity = [(d/(a[c]*a[r])) for r,c,d in zip(common_contracts.row, common_contracts.col, common_contracts.data)]
 
     return row,col,data_similarity

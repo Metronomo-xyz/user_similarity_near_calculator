@@ -72,8 +72,15 @@ class MetronomoTXCloudStorageConnector(DataConnector):
             data granularity to retrive. Currently possible only "daily" data
         """
 
+
+
         self.with_public_data = with_public_data
         print("with public data : " + str(self.with_public_data))
+
+        if ((with_public_data == False) & (token_json_path is None)):
+            raise ValueError("None of --public_data or --token_json_path is provided. Please use either public data or your own data with provided token json path.")
+
+
         if (self.with_public_data):
             self.token_json_path = None
             self.storage_client = storage.Client(project=c.MetronomoTXCloudStorageConnector_DEFAULT_PROJECT)

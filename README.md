@@ -9,13 +9,21 @@ This module calculates users similarity based on transactions data and stores it
 
 After that, you can load this similarity data into user_similarity_near_app and request similarities from it.
 
+Be aware, that calculation of similarity with popular smart contract will lead to $O(n^2)$ memory consumption. Therefore, highly recommended removing from analysis smart contract, which has very large number of users.
+
+Also, it's reasonable from the gained information perspective: if some smart contract (i.e. `wrap.near`) is used by almost every participant in the network, then there is no new and useful information that wallet interacted with `wrap.near` in terms of determining wallet behaviour and interests. 
+
+
+Module uses some data cleaning steps:
+- removing smart contract, which has the largest number of users from the analysis. See `removeContractsPercentile` variable in `config.py` 
+- removing some hardcoded list of smart-contract from analysis. See `removeContracts` variable in `config.py`
+- removing users with high number of interactions (mostly bots) from analysis. See `removeWalletsPercentile` variable in `config.py`
 
 ##Prerequisites
 
 ### Hardware
 The main bottleneck of current module is RAM, so at least 16GB of RAM needed.
 
-Be aware, that calculation of similarity with popular smart contract will lead to $O(n^2)$
 
 ### Data source
 Either you can use provided public transactions data or use your own data connector. 
@@ -26,7 +34,7 @@ To use public data you have to
 
 To use your own data connector you have to implement DataConnector abstract class and provided some setting in config file (if needed). 
 ### Create Google cloud storage bucket
-To store similarity data now there is only connector to google storage bucket. Therefore you need to create one and provide config.py with bucket name, blob path and json key
+To store similarity data now there is only connector to google storage bucket. Therefore, you need to create one and provide config.py with bucket name, blob path and json key
 
 [Here you can find details on how to create bucket](https://cloud.google.com/storage/docs/discover-object-storage-console#create_a_bucket)
 
@@ -36,13 +44,13 @@ As said above you need to provide bucket name, blob path and json key file to th
 
 1. `SIMILARITY_BUCKET = <name of your bucket>` - bucket to use to store the similarity data. It's also possible to provide json key file with `-b` or `--similarity_bucket` option instead of changing config
 2. `SIMILARITY_BLOB = <path and mane of the blob>` - blob to store similarity bucket. No need to create blob upfront, it will be created (or replaced) while running the module. It's also possible to provide json key file with `-l` or `--similarity_blob` option instead of changing config
-3. `SIMILARITY_BUCKET_TOKEN_JSON_PATH = <json key file>` - json key which will be used to get access to the bucket. Currently, only token json authentication is supported. [More detail on how to create json key file](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). It's also posible to provide json key file with `-t` or `--similarity_token_json_path` option instead of changing config
+3. `SIMILARITY_BUCKET_TOKEN_JSON_PATH = <json key file>` - json key which will be used to get access to the bucket. Currently, only token json authentication is supported. [More detail on how to create json key file](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). It's also possible to provide json key file with `-t` or `--similarity_token_json_path` option instead of changing config
 
 ##Running
 
 ###1. Create virtual environment
 
-It's recomended to use virtual environment while using module
+It's recommended to use virtual environment while using module
 
 If you don't have `venv` installed run (ex. for Ubuntu)
 ```
@@ -60,7 +68,8 @@ Run
 ```
 pip install -r simcalc_near/requirements.txt
 ```
-### 3. Create google auth default credentials 
+### 3. Create google auth default credentials
+These credentials needed to access Google Cloud Storage data with public NEAR tx data from Metronomo
 The easiest method is to run
 
 ```gcloud auth application-default login --no-launch-browser```
