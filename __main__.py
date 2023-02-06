@@ -70,6 +70,7 @@ if __name__ == '__main__':
     print(",".join([str(d) for d in dates]))
     gcs_connector = dc.MetronomoTXCloudStorageConnector(dates, with_public_data=with_public_data, bucket_name=bucket_name, network=network, token_json_path=token_json_path)
     data = gcs_connector.getData()
+    print("Data loaded")
 
     row, col, similarity = similarity.calculateSimilarity(data, removeWalletsPercentile, removeContractsPercentile, removeContracts)
 

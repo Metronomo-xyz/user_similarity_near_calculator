@@ -14,7 +14,7 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
         receiver_interactions_perc_99 = np.percentile(receiver_interactions_count.signer_account_id, 99.9)
         leaveContracts = set(receiver_interactions_count[receiver_interactions_count.signer_account_id <= receiver_interactions_perc_99]\
                              .reset_index()["receiver_account_id"].tolist())
-        print(receiver_interactions_count)
+        print(receiver_interactions_count.head(10))
         print("receiver_interactions_perc : " + str(receiver_interactions_perc_99))
 
     if (removeWalletsPercentile):
@@ -77,7 +77,6 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
 
     print("multiplying matrices")
     common_contracts = m1.dot(m2).tocoo()
-    print(str((common_contracts.data.nbytes + common_contracts.row.nbytes + common_contracts.col.nbytes) / 1024 / 1024 / 1024))
 
     a = data.groupby("index_signer").count().apply(lambda x: math.sqrt(x), axis=1).to_dict()
 
