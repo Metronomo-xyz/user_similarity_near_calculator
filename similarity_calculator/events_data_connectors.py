@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
-from user_similarity_near import config as c
-from user_similarity_near import google_cloud_storage_utils as csu
+from similarity_calculator import config as c
+from similarity_calculator import google_cloud_storage_utils as csu
 from google.cloud import storage
 
 
@@ -50,15 +50,15 @@ class MetronomoTXCloudStorageConnector(DataConnector):
 
     def __init__(self,
                  dates,
-                 run_local,
-                 bucket_name=c.MetronomoTXCloudStorageConnector_DEFAULT_BUCKET_NAME,
-                 token_json_path=c.MetronomoTXCloudStorageConnector_TOKEN_JSON_PATH,
-                 network=c.MetronomoTXCloudStorageConnector_DEFAULT_NETWORK,
+                 bucket_name,
+                 network,
+                 with_public_data = False,
+                 token_json_path=None,
                  granularity=c.MetronomoTXCloudStorageConnector_DEFAULT_GRANULARITY):
         """
         Parameters
         ----------
-        dates: str
+        dates: list[datetime.Date]
             dates range to retrieve the data. Should be iterable of datetime.date type
         run_local: str
             flag to run code locally (priority higher than token_json_path). In case of local running path for local toke_json file is used
@@ -72,12 +72,16 @@ class MetronomoTXCloudStorageConnector(DataConnector):
             data granularity to retrive. Currently possible only "daily" data
         """
 
-        if (run_local):
-            self.token_json_path = c.MetronomoTXCloudStorageConnector_LOCAL_TOKEN_JSON_PATH
+        self.with_public_data = with_public_data
+        print("with public data : " + str(self.with_public_data))
+        if (self.with_public_data):
+            self.token_json_path = None
+            self.storage_client = storage.Client(project=c.MetronomoTXCloudStorageConnector_DEFAULT_PROJECT)
+
         else:
             self.token_json_path = token_json_path
+            self.storage_client = storage.Client.from_service_account_json(self.token_json_path)
 
-        self.storage_client = storage.Client.from_service_account_json(self.token_json_path)
         self.bucket_name = bucket_name
         self.bucket = self.storage_client.get_bucket(self.bucket_name)
 
@@ -109,6 +113,8 @@ class MetronomoTXCloudStorageConnector(DataConnector):
         tx_blobs = csu.filter_blobs_by_dates(tx_blobs, self.dates)
         print("tx_blobs : ")
         print(tx_blobs)
+        if (len(tx_blobs)==0):
+            raise ValueError("List of blobs with tx data is empty. Check that data for provided start_date/date_range exists in the storage.")
 
         tx_df = pd.DataFrame()
         for tx_b in tx_blobs:
