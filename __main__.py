@@ -1,9 +1,9 @@
 import getopt
 import sys
 import datetime
-from similarity_calculator import similarity
-from similarity_calculator import config as c
-from similarity_calculator import events_data_connectors as dc
+import similarity
+import config as c
+import events_data_connectors as dc
 import csv
 from google.cloud import storage
 
