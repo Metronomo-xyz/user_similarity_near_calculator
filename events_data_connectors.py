@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
-import config as c
-import google_cloud_storage_utils as csu
+from user_similarity_near_calculator import config as c
+from user_similarity_near_calculator import google_cloud_storage_utils as csu
 from google.cloud import storage
 
 

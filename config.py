@@ -10,7 +10,7 @@ MetronomoTXCloudStorageConnector_DEFAULT_GRANULARITY = "daily"
 
 SIMILARITY_BUCKET = "near-data"
 SIMILARITY_BLOB = "similarity_data/similarity.csv"
-SIMILARITY_BUCKET_TOKEN_JSON_PATH = "C:/Users/yaroslav/Documents/Web3MarketingPlatform/CodeTools/web3advertisement-b54340ad58ad.json"
+SIMILARITY_BUCKET_TOKEN_JSON_PATH = "web3advertisement-b54340ad58ad.json"
 
 MetronomoTXCloudStorageConnector_ENTITIES = {
     "transactions" : {
