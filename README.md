@@ -15,7 +15,7 @@ After that, you can load this similarity data into user_similarity_near_app and 
 ### Hardware
 The main bottleneck of current module is RAM, so at least 16GB of RAM needed.
 
-Be aware, that calculation of similarity with popular smart contract will lead to $n^2$
+Be aware, that calculation of similarity with popular smart contract will lead to $O(n^2)$
 
 ### Data source
 Either you can use provided public transactions data or use your own data connector. 
