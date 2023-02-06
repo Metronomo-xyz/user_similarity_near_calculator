@@ -67,7 +67,7 @@ if __name__ == '__main__':
         print('Error while parsing command line arguments : ' + str(e))
 
     dates = [start_date - datetime.timedelta(days=x) for x in range(dates_range)]
-    print(dates)
+    print(",".join([str(d) for d in dates]))
     gcs_connector = dc.MetronomoTXCloudStorageConnector(dates, with_public_data=with_public_data, bucket_name=bucket_name, network=network, token_json_path=token_json_path)
     data = gcs_connector.getData()
 

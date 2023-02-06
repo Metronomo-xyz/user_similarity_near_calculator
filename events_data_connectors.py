@@ -118,8 +118,7 @@ class MetronomoTXCloudStorageConnector(DataConnector):
             self.BLOB_PATHS[self.network][self.granularity]["transactions"],
         )
         tx_blobs = csu.filter_blobs_by_dates(tx_blobs, self.dates)
-        print("tx_blobs : ")
-        print(tx_blobs)
+        print("tx_blobs len : " + str(len(tx_blobs)))
         if (len(tx_blobs)==0):
             raise ValueError("List of blobs with tx data is empty. Check that data for provided start_date/date_range exists in the storage.")
 
@@ -144,8 +143,7 @@ class MetronomoTXCloudStorageConnector(DataConnector):
             self.BLOB_PATHS[self.network][self.granularity]["actions"],
         )
         ara_blobs = csu.filter_blobs_by_dates(ara_blobs, self.dates)
-        print("action blobs : ")
-        print(ara_blobs)
+        print("action len : " + str(len(ara_blobs)))
 
         ara_df = pd.DataFrame()
         print("reading actions blobs:")
