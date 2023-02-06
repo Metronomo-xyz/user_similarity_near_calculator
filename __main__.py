@@ -10,8 +10,8 @@ from google.cloud import storage
 
 if __name__ == '__main__':
     argv = sys.argv[1:]
-    options = "pt:n:b:d:s:r:"
-    long_options = ["public-data", "token-json-path", "network=", "bucket=", "start_date=", "date_range=",\
+    options = "ps:r:b:l:t:"
+    long_options = ["public-data", "start_date=", "date_range=",\
                     "similarity_bucket=", "similarity_blob=", "similarity_token_json_path="]
 
 
@@ -40,16 +40,6 @@ if __name__ == '__main__':
             if opt in ("-p", "--public-data"):
                 with_public_data = True
 
-            elif opt in ("-t", "--token-json-path"):
-                token_json_path = value
-
-            elif opt in ("-n", "--network"):
-                network = value
-
-            elif opt in ("-b", "--bucket"):
-                bucket_name = value
-
-
             elif opt in ("-s", "--start_date"):
                 print("got")
                 try:
@@ -65,13 +55,13 @@ if __name__ == '__main__':
                     print("ERROR OCCURED: --date-range must be integer, but " + value + " was given")
                     sys.exit(1)
 
-            elif opt in ("--similarity_bucket"):
+            elif opt in ("-b", "--similarity_bucket"):
                 similarity_bucket = value
 
-            elif opt in ("--similarity_blob"):
+            elif opt in ("-l", "--similarity_blob"):
                 similarity_bucket_token_json_path = value
 
-            elif opt in ("-d", "--similarity_token_json_path"):
+            elif opt in ("-t", "--similarity_token_json_path"):
                 bucket_name = value
 
     except getopt.GetoptError as e:
