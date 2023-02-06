@@ -46,9 +46,9 @@ As said above you need to provide bucket name, blob path and json key file to th
 2. `SIMILARITY_BLOB = <path and mane of the blob>` - blob to store similarity bucket. No need to create blob upfront, it will be created (or replaced) while running the module. It's also possible to provide json key file with `-l` or `--similarity_blob` option instead of changing config
 3. `SIMILARITY_BUCKET_TOKEN_JSON_PATH = <json key file>` - json key which will be used to get access to the bucket. Currently, only token json authentication is supported. [More detail on how to create json key file](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). It's also possible to provide json key file with `-t` or `--similarity_token_json_path` option instead of changing config
 
-##Running
+## Running
 
-###1. Create virtual environment
+### 1. Create virtual environment
 
 It's recommended to use virtual environment while using module
 
