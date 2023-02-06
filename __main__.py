@@ -41,7 +41,6 @@ if __name__ == '__main__':
                 with_public_data = True
 
             elif opt in ("-s", "--start_date"):
-                print("got")
                 try:
                     start_date = datetime.datetime.strptime(value, "%d%m%Y").date()
                 except ValueError as e:
@@ -81,7 +80,4 @@ if __name__ == '__main__':
     with blob.open("w") as f:
         writer = csv.writer(f)
         writer.writerows(zip(row, col, similarity))
-
-    print("rows : " + str(len(row)))
-    print("columns : " + str(len(col)))
-    print(len(similarity))
+    print("Similarity is written to the blob : " + "gs://" + similarity_bucket + "/" + similarity_blob)

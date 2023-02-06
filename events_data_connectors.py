@@ -75,7 +75,7 @@ class MetronomoTXCloudStorageConnector(DataConnector):
 
 
         self.with_public_data = with_public_data
-        print("with public data : " + str(self.with_public_data))
+        print("Using public data : " + str(self.with_public_data))
 
         if ((with_public_data == False) & (token_json_path is None)):
             raise ValueError("None of --public_data or --token_json_path is provided. Please use either public data or your own data with provided token json path.")
@@ -124,8 +124,9 @@ class MetronomoTXCloudStorageConnector(DataConnector):
             raise ValueError("List of blobs with tx data is empty. Check that data for provided start_date/date_range exists in the storage.")
 
         tx_df = pd.DataFrame()
+        print("reading tx blobs:")
         for tx_b in tx_blobs:
-            print("current blob : ")
+
             print(tx_b)
             tx_data = csu.get_dataframe_from_blob(
                 self.bucket,
@@ -143,12 +144,12 @@ class MetronomoTXCloudStorageConnector(DataConnector):
             self.BLOB_PATHS[self.network][self.granularity]["actions"],
         )
         ara_blobs = csu.filter_blobs_by_dates(ara_blobs, self.dates)
-        print("ara_blobs : ")
+        print("action blobs : ")
         print(ara_blobs)
 
         ara_df = pd.DataFrame()
+        print("reading actions blobs:")
         for ara_b in ara_blobs:
-            print("current blob : ")
             print(ara_b)
             ara_data = csu.get_dataframe_from_blob(
                 self.bucket,

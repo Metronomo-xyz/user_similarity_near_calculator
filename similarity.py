@@ -49,7 +49,6 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
             else:
                 data = data[data.signer_account_id != data.receiver_account_id]
 
-    print(data)
     signers = data["signer_account_id"].drop_duplicates().reset_index().drop("index", axis=1).reset_index()
     print("signers num : " + str(len(signers)))
 
@@ -69,32 +68,28 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
         .drop("interactions_num", axis=1) \
         .drop_duplicates()
 
-    print(data)
-
     row = np.array(data["index_signer"])
     col = np.array(data["index_receiver"])
     d = np.array(np.ones(len(data)))
-    print("creating m1 & m2")
+    print("creating matrices")
     m1 = ss.coo_matrix((d, (row, col))).astype(np.uintc).tocsr()
     m2 = m1.transpose()
 
-    print(str((m1.data.nbytes + m1.indptr.nbytes + m1.indices.nbytes) / 1024 / 1024 / 1024))
-    print(str((m2.data.nbytes + m2.indptr.nbytes + m2.indices.nbytes) / 1024 / 1024 / 1024))
-
-    print("multiplying")
+    print("multiplying matrices")
     common_contracts = m1.dot(m2).tocoo()
     print(str((common_contracts.data.nbytes + common_contracts.row.nbytes + common_contracts.col.nbytes) / 1024 / 1024 / 1024))
 
     a = data.groupby("index_signer").count().apply(lambda x: math.sqrt(x), axis=1).to_dict()
-    print("a:")
-    print(a)
 
     signers_index = signers.set_index("index").to_dict()["signer_account_id"]
     print("number of entries : " + str(len(common_contracts.data)))
     print("calculating similarity")
 
     row = [signers_index[idx] for idx in common_contracts.row]
+    print("replaced row indexes with wallets")
     col = [signers_index[idx] for idx in common_contracts.col]
+    print("replaced column indexes with wallets")
     data_similarity = [(d/(a[c]*a[r])) for r,c,d in zip(common_contracts.row, common_contracts.col, common_contracts.data)]
+    print("calculated similarity")
 
-    return row,col,data_similarity
+    return row, col, data_similarity

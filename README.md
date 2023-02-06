@@ -11,15 +11,17 @@ After that, you can load this similarity data into user_similarity_near_app and 
 
 Be aware, that calculation of similarity with popular smart contract will lead to $O(n^2)$ memory consumption. Therefore, highly recommended removing from analysis smart contract, which has very large number of users.
 
-Also, it's reasonable from the gained information perspective: if some smart contract (i.e. `wrap.near`) is used by almost every participant in the network, then there is no new and useful information that wallet interacted with `wrap.near` in terms of determining wallet behaviour and interests. 
-
+Also, it's reasonable from the gained information perspective: if some smart contract (i.e. `wrap.near`) is used by almost every participant in the network, then there is no new and useful information that wallet interacted with `wrap.near` in terms of determining wallet behaviour and interests.
 
 Module uses some data cleaning steps:
 - removing smart contract, which has the largest number of users from the analysis. See `removeContractsPercentile` variable in `config.py` 
 - removing some hardcoded list of smart-contract from analysis. See `removeContracts` variable in `config.py`
 - removing users with high number of interactions (mostly bots) from analysis. See `removeWalletsPercentile` variable in `config.py`
 
-##Prerequisites
+Because of percentile cleaning usage it might be, that taking shorted data period will lead to increase in memory consumption.
+It happens, because on a short period of time popular smart contracts are not so divided from other in number of interactions. Therefore, they are not cleaned from analysis by 99-th percentile cut.
+
+## Prerequisites
 
 ### Hardware
 The main bottleneck of current module is RAM, so at least 16GB of RAM needed.
@@ -38,7 +40,7 @@ To store similarity data now there is only connector to google storage bucket. T
 
 [Here you can find details on how to create bucket](https://cloud.google.com/storage/docs/discover-object-storage-console#create_a_bucket)
 
-###Change config.py
+### Change config.py
 
 As said above you need to provide bucket name, blob path and json key file to the module via config.py file.
 
@@ -47,6 +49,10 @@ As said above you need to provide bucket name, blob path and json key file to th
 3. `SIMILARITY_BUCKET_TOKEN_JSON_PATH = <json key file>` - json key which will be used to get access to the bucket. Currently, only token json authentication is supported. [More detail on how to create json key file](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). It's also possible to provide json key file with `-t` or `--similarity_token_json_path` option instead of changing config
 
 ## Running
+
+### 0. Clone repository
+
+`git clone https://github.com/Metronomo-xyz/user_similarity_near_calculator.git`
 
 ### 1. Create virtual environment
 
@@ -66,7 +72,7 @@ source simcalc_near/bin/activate
 ### 2. Install requirements
 Run
 ```
-pip install -r simcalc_near/requirements.txt
+pip install -r user_similarity_near_calculator/requirements.txt
 ```
 ### 3. Create google auth default credentials
 These credentials needed to access Google Cloud Storage data with public NEAR tx data from Metronomo
@@ -82,7 +88,7 @@ For other ways to create credentials see
 
 ### 4. Run the module
 
-```python3 -m user_similarity_near_calculator -p -s 31122022 -r 1```
+```python3 -m user_similarity_near_calculator -p -s 31012023 -r 30```
 
 ### 5. Possible options:
 
