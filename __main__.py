@@ -4,9 +4,7 @@ import datetime
 from user_similarity_near_calculator import config as c
 from user_similarity_near_calculator import events_data_connectors as dc
 from user_similarity_near_calculator import similarity
-import csv
-from google.cloud import storage
-
+from user_similarity_near_calculator import db_writers
 
 if __name__ == '__main__':
     argv = sys.argv[1:]
@@ -72,13 +70,10 @@ if __name__ == '__main__':
     data = gcs_connector.getData()
     print("Data loaded")
 
-    row, col, similarity = similarity.calculateSimilarity(data, removeWalletsPercentile, removeContractsPercentile, removeContracts)
+    zipped_similarity = similarity.calculateSimilarity(data, removeWalletsPercentile, removeContractsPercentile, removeContracts)
+    print(len(zipped_similarity))
+    print(zipped_similarity[0:10])
 
-    storage_client = storage.Client.from_service_account_json(similarity_bucket_token_json_path)
-    bucket = storage_client.get_bucket(similarity_bucket)
-    blob = bucket.blob(similarity_blob)
 
-    with blob.open("w") as f:
-        writer = csv.writer(f)
-        writer.writerows(zip(row, col, similarity))
-    print("Similarity is written to the blob : " + "gs://" + similarity_bucket + "/" + similarity_blob)
+    mongo_writer = db_writers.MongoWriter(c.MONGO_HOST)
+    mongo_writer.writeSimilarityToCollection(zipped_similarity, c.MONGO_DATABASE, c.MONGO_COLLECTION)

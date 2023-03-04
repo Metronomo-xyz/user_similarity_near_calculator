@@ -91,4 +91,4 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
     data_similarity = [(d/(a[c]*a[r])) for r,c,d in zip(common_contracts.row, common_contracts.col, common_contracts.data)]
     print("calculated similarity")
 
-    return row, col, data_similarity
+    return list(zip(row, col, data_similarity))

@@ -12,6 +12,11 @@ SIMILARITY_BUCKET = "near-data"
 SIMILARITY_BLOB = "similarity_data/similarity.csv"
 SIMILARITY_BUCKET_TOKEN_JSON_PATH = "web3advertisement-b54340ad58ad.json"
 
+#MONGO_HOST = '34.116.212.75'
+MONGO_HOST = '127.0.0.1'
+MONGO_DATABASE = 'test'
+MONGO_COLLECTION = 'test_collection'
+
 MetronomoTXCloudStorageConnector_ENTITIES = {
     "transactions" : {
         "fields": ["signer_account_id", "receiver_account_id", "converted_into_receipt_id"]
