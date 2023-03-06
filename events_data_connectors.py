@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 import pandas as pd
-from user_similarity_near_calculator import config as c
+from dotenv import load_dotenv
 from user_similarity_near_calculator import google_cloud_storage_utils as csu
 from google.cloud import storage
+import os
 
 
 class DataConnector(ABC):
@@ -54,7 +55,7 @@ class MetronomoTXCloudStorageConnector(DataConnector):
                  network,
                  with_public_data = False,
                  token_json_path=None,
-                 granularity=c.MetronomoTXCloudStorageConnector_DEFAULT_GRANULARITY):
+                 granularity="daily"):
         """
         Parameters
         ----------
@@ -63,16 +64,16 @@ class MetronomoTXCloudStorageConnector(DataConnector):
         run_local: str
             flag to run code locally (priority higher than token_json_path). In case of local running path for local toke_json file is used
         bucket_name: str
-            name of the bucket to get data from. Either provided or got from config.py file, variable MetronomoTXCloudStorageConnector_DEFAULT_BUCKET_NAME
+            name of the bucket to get data from. Either provided or got from config.env file, variable MetronomoTXCloudStorageConnector_DEFAULT_BUCKET_NAME
         token_json_path: str
-            path to token json file. Either provided or got from config.py file, variable MetronomoTXCloudStorageConnector_TOKEN_JSON_PATH
+            path to token json file. Either provided or got from config.env file, variable MetronomoTXCloudStorageConnector_TOKEN_JSON_PATH
         network:
             network to get data from. Currently, possible only "mainnet" data
         granularity:
             data granularity to retrive. Currently possible only "daily" data
         """
 
-
+        load_dotenv("user_similarity_near_calculator/static_config.env")
 
         self.with_public_data = with_public_data
         print("Using public data : " + str(self.with_public_data))
@@ -83,14 +84,14 @@ class MetronomoTXCloudStorageConnector(DataConnector):
 
         if (self.with_public_data):
             self.token_json_path = None
-            self.storage_client = storage.Client(project=c.MetronomoTXCloudStorageConnector_DEFAULT_PROJECT)
+            self.storage_client = storage.Client().create_anonymous_client()
 
         else:
             self.token_json_path = token_json_path
             self.storage_client = storage.Client.from_service_account_json(self.token_json_path)
 
         self.bucket_name = bucket_name
-        self.bucket = self.storage_client.get_bucket(self.bucket_name)
+        self.bucket = self.storage_client.bucket(self.bucket_name)
 
         if not (network  in self.BLOB_PATHS.keys()):
             raise ValueError("Wrong network provideded : " + network + ". Network not in BLOB_PATHS. Please choose correct network : " + ", ".join(map(str, self.BLOB_PATHS.keys())))
@@ -113,6 +114,7 @@ class MetronomoTXCloudStorageConnector(DataConnector):
 
     def getData(self):
         all_blobs = csu.get_blob_list(self.storage_client, self.bucket)
+        print("network : " + str(self.network) + ", granularity : " + str(self.granularity))
         tx_blobs = csu.filter_blobs_by_path(
             all_blobs,
             self.BLOB_PATHS[self.network][self.granularity]["transactions"],

@@ -1,7 +1,6 @@
 import scipy.sparse as ss
 import numpy as np
 import math
-import time
 
 def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPercentile=None, removeContracts=None):# -> ss.coo_matrix:
     if (removeWalletsPercentile):

@@ -24,8 +24,11 @@ It happens, because on a short period of time popular smart contracts are not so
 ## Prerequisites
 
 ### Hardware
-The main bottleneck of current module is RAM, so at least 16GB of RAM needed.
+#### Calculation server
+The main bottleneck of current module is RAM, so at least 16GB of RAM needed. Memory consumption can be much higher ($O(n^2)$, where $n$ - is number of users of the most popular smart contract), if use more data or if not using popular smart contract interactions removal.
 
+#### MongoDB Server
+Any kind of preferred infrastructure for MongoDB server is possible. At least 10 GB of available disk space needed. Better to have 20GB or more of available disk space.
 
 ### Data source
 Either you can use provided public transactions data or use your own data connector. 
@@ -35,20 +38,16 @@ To use public data you have to
 2. Create google auth default credentials. More detail [below](#3-create-google-auth-default-credentials)
 
 To use your own data connector you have to implement DataConnector abstract class and provided some setting in config file (if needed). 
-### Create Google cloud storage bucket
-To store similarity data now there is only connector to google storage bucket. Therefore, you need to create one and provide config.py with bucket name, blob path and json key
 
-[Here you can find details on how to create bucket](https://cloud.google.com/storage/docs/discover-object-storage-console#create_a_bucket)
+### Run MongoDB server
 
-### Change config.py
+To store similarity module use MongoDB. 
 
-As said above you need to provide bucket name, blob path and json key file to the module via config.py file.
+You have to run MongoDB server and provide it's host and port to the module
 
-1. `SIMILARITY_BUCKET = <name of your bucket>` - bucket to use to store the similarity data. It's also possible to provide json key file with `-b` or `--similarity_bucket` option instead of changing config
-2. `SIMILARITY_BLOB = <path and mane of the blob>` - blob to store similarity bucket. No need to create blob upfront, it will be created (or replaced) while running the module. It's also possible to provide json key file with `-l` or `--similarity_blob` option instead of changing config
-3. `SIMILARITY_BUCKET_TOKEN_JSON_PATH = <json key file>` - json key which will be used to get access to the bucket. Currently, only token json authentication is supported. [More detail on how to create json key file](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). It's also possible to provide json key file with `-t` or `--similarity_token_json_path` option instead of changing config
+### 
 
-## Running
+## Running from the source code
 
 ### 0. Clone repository
 
@@ -98,3 +97,6 @@ For other ways to create credentials see
 - `-b`, `--similarity_bucket` - bucket to use to store the similarity data.
 - `-l`, `--similarity_blob` - blob to store similarity bucket. No need to create blob upfront, it will be created (or replaced) while running the module.
 - `-d`, `--similarity_token_json_path` - json key which will be used to get access to the bucket. Currently, only token json authentication is supported. [More detail on how to create json key file](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
+
+## Running from Docker image
+# TODO: CHANGE

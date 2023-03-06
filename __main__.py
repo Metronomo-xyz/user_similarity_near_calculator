@@ -1,79 +1,75 @@
-import getopt
-import sys
 import datetime
-from user_similarity_near_calculator import config as c
+import os
+import sys
+from dotenv import load_dotenv
 from user_similarity_near_calculator import events_data_connectors as dc
 from user_similarity_near_calculator import similarity
 from user_similarity_near_calculator import db_writers
 
-if __name__ == '__main__':
-    argv = sys.argv[1:]
-    options = "ps:r:b:l:t:"
-    long_options = ["public-data", "start_date=", "date_range=",\
-                    "similarity_bucket=", "similarity_blob=", "similarity_token_json_path="]
 
-
-    # interactions data source credentials
-    with_public_data = False
-    token_json_path = None
-
-    # similarity storage destination
-    similarity_bucket = c.SIMILARITY_BUCKET
-    similarity_blob = c.SIMILARITY_BLOB
-    similarity_bucket_token_json_path = c.SIMILARITY_BUCKET_TOKEN_JSON_PATH
-
-    # other default parameters
-    start_date = datetime.date.today() - datetime.timedelta(days=1)
-    dates_range = 1
-    removeContracts = c.removeContracts
-    removeWalletsPercentile = c.removeWalletsPercentile
-    removeContractsPercentile = c.removeContractsPercentile
-    bucket_name = c.MetronomoTXCloudStorageConnector_DEFAULT_BUCKET_NAME
-    network = c.MetronomoTXCloudStorageConnector_DEFAULT_NETWORK
+def check_type_conversion(value_, type_):
+    if not value_:
+        raise ValueError("Expected something, that is convertible to type " +
+              str(type_) + ", but None was provided")
 
     try:
-        opts, args = getopt.getopt(argv, options, long_options)
+        return type_(value_)
+    except ValueError as e:
+        print("Value error : expected simething, that is convertible to type " +
+              str(type_) + ", but " + str(value_) + " was provided")
 
-        for opt, value in opts:
-            if opt in ("-p", "--public-data"):
-                with_public_data = True
+if __name__ == '__main__':
+    load_dotenv("user_similarity_near_calculator/static_config.env")
+#    load_dotenv("user_similarity_near_calculator/config.env")
 
-            elif opt in ("-s", "--start_date"):
-                try:
-                    start_date = datetime.datetime.strptime(value, "%d%m%Y").date()
-                except ValueError as e:
-                    print("ERROR OCCURED: --start_date must be in %d%m%Y format, but " + value + " was given")
-                    sys.exit(1)
+    with_public_data = (os.getenv("USE_PUBLIC_DATA") == "True")
+    try:
+        start_date = datetime.datetime.strptime(os.getenv("START_DATE"), "%d%m%Y")
+    except TypeError as e:
+        print(e)
+        print("Environmental variable START_DATE is not set")
+        sys.exit(1)
+    except ValueError as e:
+        print(e)
+        print("Environmental variable START_DATE is" + os.getenv("START_DATE"))
+        sys.exit(1)
 
-            elif opt in ("-r", "--date_range"):
-                try:
-                    dates_range = int(value)
-                except ValueError as e:
-                    print("ERROR OCCURED: --date-range must be integer, but " + value + " was given")
-                    sys.exit(1)
+    dates_range = check_type_conversion(os.getenv("DATES_RANGE"), int)
 
-            elif opt in ("-b", "--similarity_bucket"):
-                similarity_bucket = value
+    try:
+        remove_contracts = set(os.getenv("REMOVE_CONTRACTS").split(","))
+    except Exception as e:
+        print(e)
+        print("Environmental variable REMOVE_CONTRACTS is" + os.getenv("REMOVE_CONTRACTS"))
+        sys.exit(1)
 
-            elif opt in ("-l", "--similarity_blob"):
-                similarity_bucket_token_json_path = value
+    remove_wallets_percentile = check_type_conversion(os.getenv("REMOVE_WALLETS_PERCENTILE"), float)
+    remove_contracts_percentile = check_type_conversion(os.getenv("REMOVE_CONTRACTS_PERCENTILE"), float)
+    bucket_name = check_type_conversion(os.getenv("METRONOMO_PUBLIC_DATA_BUCKET_NAME"), str)
+    network = check_type_conversion(os.getenv("METRONOMO_PUBLIC_DATA_NETWORK"), str)
+    granularity = check_type_conversion(os.getenv("METRONOMO_PUBLIC_DATA_GRANULARITY"), str)
 
-            elif opt in ("-t", "--similarity_token_json_path"):
-                bucket_name = value
+    if os.getenv("MONGO_HOST"):
+        mongo_host = check_type_conversion(os.getenv("MONGO_HOST"), str)
+    else:
+        mongo_host = '127.0.0.1'
 
-    except getopt.GetoptError as e:
-        print('Error while parsing command line arguments : ' + str(e))
+    if os.getenv("MONGO_PORT"):
+        mongo_port = check_type_conversion(os.getenv("MONGO_PORT"), int)
+    else:
+        mongo_port = 27017
+
+    mongo_database = check_type_conversion(os.getenv("MONGO_DATABASE"), str)
+    mongo_collection = check_type_conversion(os.getenv("MONGO_COLLECTION"), str)
 
     dates = [start_date - datetime.timedelta(days=x) for x in range(dates_range)]
-    print(",".join([str(d) for d in dates]))
-    gcs_connector = dc.MetronomoTXCloudStorageConnector(dates, with_public_data=with_public_data, bucket_name=bucket_name, network=network, token_json_path=token_json_path)
+    print("Dates : " +  ",".join([str(d) for d in dates]))
+    gcs_connector = dc.MetronomoTXCloudStorageConnector(dates, with_public_data=with_public_data, bucket_name=bucket_name, network=network, granularity=granularity)
+
     data = gcs_connector.getData()
     print("Data loaded")
 
-    zipped_similarity = similarity.calculateSimilarity(data, removeWalletsPercentile, removeContractsPercentile, removeContracts)
-    print(len(zipped_similarity))
-    print(zipped_similarity[0:10])
+    zipped_similarity = similarity.calculateSimilarity(data, remove_wallets_percentile, remove_contracts_percentile, remove_contracts)
 
-
-    mongo_writer = db_writers.MongoWriter(c.MONGO_HOST)
-    mongo_writer.writeSimilarityToCollection(zipped_similarity, c.MONGO_DATABASE, c.MONGO_COLLECTION)
+    mongo_writer = db_writers.MongoWriter(mongo_host)
+    mongo_writer.writeSimilarityToCollection(zipped_similarity, mongo_database, mongo_collection)
