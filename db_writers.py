@@ -9,7 +9,7 @@ class MongoWriter():
         try:
             result = self.client.admin.command("ismaster")
             print("Mongo connection esteblished : " + str(self.client))
-        except pymongo.errors.ServerSelectionTimeoutError:
+        except pymongo.errors.ServerSelectionTimeoutError as e:
             print("Server did not managed to set connection in " + (str(timeout/1000)) + " second. Likely that server is unavailable")
             raise ValueError("Can't establish connection. Wrong host or/and port : " + host + ":" + str(port))
 
@@ -21,7 +21,7 @@ class MongoWriter():
         tm0 = time.time()
         json_data = [{"wallet_1": str(s[0]), "wallet_2": str(s[1]), "similarity": str(s[2])} for s in similarity]
         tm1 = time.time()
-        print("Creatinf json_data took " +str(tm1-tm0))
+        print("Creating json_data took " +str(tm1-tm0))
 
         # TODO: poor performance, need to optimize
         print("Mongo : " + str(self.client.host) + ":"+str(self.client.port))
@@ -35,5 +35,5 @@ class MongoWriter():
         except Exception as e:
             print(e)
 
-        print("Similarity is written to the MongoDB : " + str(self.client.host) + "." + str(db.name) + "." + str(collection.name))
+        print("Similarity is written to the MongoDB : " + str(self.client.HOST) + "." + str(db.name) + "." + str(collection.name))
         print("Mongo insert took " + str(tm1 - tm0) + " seconds")
