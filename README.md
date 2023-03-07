@@ -41,7 +41,7 @@ To use your own data connector you have to implement DataConnector abstract clas
 
 To store similarity module use MongoDB. 
 
-You have to run MongoDB server and provide its host, port, database and collection to the module in `config.env` file
+You have to run MongoDB server and provide its host, port, database and collection to the module in `.env` file
 
 ## Running from the source code
 
@@ -69,13 +69,13 @@ Run
 pip install -r user_similarity_near_calculator/requirements.txt
 ```
 
-### 3. Change config.env
+### 3. Set environmental variables
 
 env-files:
-- [config.env](#configenv) - Need to take file from current repository as example, change it, and then provide path to it while running module with `--env-file` or `-e` option.
+- [.env](#configenv) - Need to take file from current repository as example, change it, and then provide path to it while running module with `--env-file` or `-e` option.
 - [static_config.env](#static_configenv) - better not to change
 
-#### config.env
+#### .env
 
 Variables to access MongoDB server. You HAVE to set your own
 
@@ -122,9 +122,9 @@ REMOVE_WALLETS_PERCENTILE - Percentile of number of overall user interactions. W
 
 ### 4. Run the module
 
-```python3 -m user_similarity_near_calculator --env-file <path to config.env>```
+```python3 -m user_similarity_near_calculator```
 
-Similarity result will be stored in MongoDB on host, port provided in config.env, in database and collections provided in config.env
+Similarity result will be stored in MongoDB on host, port provided in .env, in database and collections provided in .env
 
 ## Running from Docker image
 # TODO: CHANGE

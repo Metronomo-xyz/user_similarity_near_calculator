@@ -10,7 +10,7 @@ class MongoWriter():
             result = self.client.admin.command("ismaster")
             print("Mongo connection esteblished : " + str(self.client))
         except pymongo.errors.ServerSelectionTimeoutError:
-            print("Server did not managed to set connection in " + (str(timeout/1000)) + " seconde. Liekly that server is unavailable")
+            print("Server did not managed to set connection in " + (str(timeout/1000)) + " second. Likely that server is unavailable")
             raise ValueError("Can't establish connection. Wrong host or/and port : " + host + ":" + str(port))
 
     def writeSimilarityToCollection(self, similarity, database, collection):
@@ -18,23 +18,22 @@ class MongoWriter():
         collection = db[collection]
         wallet_set = set([s[0] for s in similarity])
 
+        tm0 = time.time()
+        json_data = [{"wallet_1": str(s[0]), "wallet_2": str(s[1]), "similarity": str(s[2])} for s in similarity]
+        tm1 = time.time()
+        print("Creatinf json_data took " +str(tm1-tm0))
+
         # TODO: poor performance, need to optimize
         print("Mongo : " + str(self.client.host) + ":"+str(self.client.port))
         print("Inserting to mongo. Can take a while.")
-        c=1
-        total = len(wallet_set)
-        tm0 = time.time()
-        for w in wallet_set:
-            if(c%1000 == 0):
-                print(str(c) + " of " +str(total))
-            wallet_similarities = [{"wallet_2": str(s[1]), "similarity": str(s[2])} for s in similarity if (s[0]==w)]
-            try:
-                collection.update_many({"wallet_1": w}, {"$set": {"similarities" : wallet_similarities}}, upsert=True)
-            except Exception as e:
-                print(e)
-                sys.exit(1)
-            c+=1
-        tm1 = time.time()
+
+        try:
+            collection.drop()
+            tm0 = time.time()
+            collection.insert_many(json_data)
+            tm1 = time.time()
+        except Exception as e:
+            print(e)
 
         print("Similarity is written to the MongoDB : " + str(self.client.host) + "." + str(db.name) + "." + str(collection.name))
         print("Mongo insert took " + str(tm1 - tm0) + " seconds")

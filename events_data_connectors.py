@@ -64,9 +64,9 @@ class MetronomoTXCloudStorageConnector(DataConnector):
         run_local: str
             flag to run code locally (priority higher than token_json_path). In case of local running path for local toke_json file is used
         bucket_name: str
-            name of the bucket to get data from. Either provided or got from config.env file, variable MetronomoTXCloudStorageConnector_DEFAULT_BUCKET_NAME
+            name of the bucket to get data from. Either provided or got from .env file, variable MetronomoTXCloudStorageConnector_DEFAULT_BUCKET_NAME
         token_json_path: str
-            path to token json file. Either provided or got from config.env file, variable MetronomoTXCloudStorageConnector_TOKEN_JSON_PATH
+            path to token json file. Either provided or got from .env file, variable MetronomoTXCloudStorageConnector_TOKEN_JSON_PATH
         network:
             network to get data from. Currently, possible only "mainnet" data
         granularity:

@@ -20,20 +20,7 @@ def check_type_conversion(value_, type_):
 
 if __name__ == '__main__':
     load_dotenv("user_similarity_near_calculator/static_config.env")
-
-    # loading environmental variables from provided --env-file
-    argv = sys.argv[1:]
-    options = "e:"
-    long_options = ["env-file="]
-    env_file_path = ""
-    try:
-        opts, args = getopt.getopt(argv, options, long_options)
-        for opt, value in opts:
-            if opt in ("-e", "--env-file"):
-                env_file_path = value
-                load_dotenv(env_file_path)
-    except getopt.GetoptError as e:
-        print('Error while parsing command line arguments : ' + str(e))
+    load_dotenv()
 
     # reading environmental variables
     with_public_data = (os.getenv("USE_PUBLIC_DATA") == "True")
