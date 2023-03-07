@@ -18,9 +18,12 @@ class MongoWriter():
         collection = db[collection]
         wallet_set = set([s[0] for s in similarity])
 
+        print("similarity_size : " + str(sys.getsizeof(similarity)/1024/1024/1024))
+
         print("Creating json data. It might take a while")
         tm0 = time.time()
         json_data = [{"wallet_1": str(s[0]), "wallet_2": str(s[1]), "similarity": str(s[2])} for s in similarity]
+        print("json_data : " + str(sys.getsizeof(json_data)/1024/1024/1024))
         tm1 = time.time()
         print("Creating json data took " +str(tm1-tm0))
 
