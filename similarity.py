@@ -5,7 +5,7 @@ import math
 def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPercentile=None, removeContracts=None):# -> ss.coo_matrix:
     if (removeWalletsPercentile):
         interactions_num_perc_99 = np.percentile(data.interactions_num, removeWalletsPercentile)
-        print("signer interactions perc : " + str(interactions_num_perc_99))
+        print("remove signer interactions percentile : " + str(interactions_num_perc_99))
 
     if (removeContractsPercentile):
         receiver_interactions_count = data[["signer_account_id", "receiver_account_id"]].groupby("receiver_account_id")\
@@ -14,11 +14,12 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
         leaveContracts = set(receiver_interactions_count[receiver_interactions_count.signer_account_id <= receiver_interactions_perc_99]\
                              .reset_index()["receiver_account_id"].tolist())
         print(receiver_interactions_count.head(10))
-        print("receiver_interactions_perc : " + str(receiver_interactions_perc_99))
+        print("remove receiver interactions percentile : " + str(receiver_interactions_perc_99))
 
     if (removeWalletsPercentile):
         if(removeContractsPercentile):
             if(removeContracts):
+                print("remove contracts : " + str(removeContracts))
                 leaveContracts = leaveContracts - removeContracts
                 data = data[(data.interactions_num <= interactions_num_perc_99) & (data.receiver_account_id.isin(leaveContracts))]
                 data = data[data.signer_account_id != data.receiver_account_id]
@@ -27,6 +28,7 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
                 data = data[data.signer_account_id != data.receiver_account_id]
         else:
             if (removeContracts):
+                print("remove contracts : " + str(removeContracts))
                 data = data[(data.interactions_num <= interactions_num_perc_99) & (~data.receiver_account_id.isin(removeContracts))]
                 data = data[data.signer_account_id != data.receiver_account_id]
             else:
@@ -35,6 +37,7 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
     else:
         if (removeContractsPercentile):
             if (removeContracts):
+                print("remove contracts : " + str(removeContracts))
                 leaveContracts = leaveContracts - removeContracts
                 data = data[data.receiver_account_id.isin(leaveContracts)]
                 data = data[data.signer_account_id != data.receiver_account_id]
@@ -43,6 +46,7 @@ def calculateSimilarity(data, removeWalletsPercentile=None, removeContractsPerce
                 data = data[data.signer_account_id != data.receiver_account_id]
         else:
             if (removeContracts):
+                print("remove contracts : " + str(removeContracts))
                 data = data[~data.receiver_account_id.isin(removeContracts)]
                 data = data[data.signer_account_id != data.receiver_account_id]
             else:

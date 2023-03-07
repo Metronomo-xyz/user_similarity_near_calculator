@@ -20,7 +20,7 @@ def check_type_conversion(value_, type_):
 
 if __name__ == '__main__':
     load_dotenv("user_similarity_near_calculator/static_config.env")
-#    load_dotenv("user_similarity_near_calculator/config.env")
+    load_dotenv("user_similarity_near_calculator/config.env")
 
     with_public_data = (os.getenv("USE_PUBLIC_DATA") == "True")
     try:
@@ -71,5 +71,5 @@ if __name__ == '__main__':
 
     zipped_similarity = similarity.calculateSimilarity(data, remove_wallets_percentile, remove_contracts_percentile, remove_contracts)
 
-    mongo_writer = db_writers.MongoWriter(mongo_host)
+    mongo_writer = db_writers.MongoWriter(mongo_host, mongo_port)
     mongo_writer.writeSimilarityToCollection(zipped_similarity, mongo_database, mongo_collection)
