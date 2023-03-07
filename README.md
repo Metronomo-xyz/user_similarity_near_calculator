@@ -14,12 +14,12 @@ Be aware, that calculation of similarity with popular smart contract will lead t
 Also, it's reasonable from the gained information perspective: if some smart contract (i.e. `wrap.near`) is used by almost every participant in the network, then there is no new and useful information that wallet interacted with `wrap.near` in terms of determining wallet behaviour and interests.
 
 Module uses some data cleaning steps:
-- removing smart contract, which has the largest number of users from the analysis. See `removeContractsPercentile` variable in `config.py` 
-- removing some hardcoded list of smart-contract from analysis. See `removeContracts` variable in `config.py`
-- removing users with high number of interactions (mostly bots) from analysis. See `removeWalletsPercentile` variable in `config.py`
+- removing smart contract, which has the largest number of users from the analysis. See `REMOVE_CONTRACTS_PERCENTILE` variable in `static_config.env` 
+- removing some hardcoded list of smart-contract from analysis. See `REMOVE_CONRACTS` variable in `static_config.env`
+- removing users with high number of interactions (mostly bots) from analysis. See `REMOVE_WALLETS_PERCENTILE` variable in `static_config.env`
 
-Because of percentile cleaning usage it might be, that taking shorted data period will lead to increase in memory consumption.
-It happens, because on a short period of time popular smart contracts are not so divided from other in number of interactions. Therefore, they are not cleaned from analysis by 99-th percentile cut.
+Because of percentile cleaning usage, it is possible, that using data from shorter period will lead to increase in memory consumption.
+It happens, because on a short period of time the most popular smart contracts are not so separated from other in terms of interactions number. Therefore, they are not cleaned from analysis by 99-th percentile cut.
 
 ## Prerequisites
 
@@ -33,9 +33,7 @@ Any kind of preferred infrastructure for MongoDB server is possible. At least 10
 ### Data source
 Either you can use provided public transactions data or use your own data connector. 
 
-To use public data you have to
-1. pass `-p` option while running 
-2. Create google auth default credentials. More detail [below](#3-create-google-auth-default-credentials)
+To use public data user environmental variable `USE_PUBLIC_DATE` in `static_config.env`
 
 To use your own data connector you have to implement DataConnector abstract class and provided some setting in config file (if needed). 
 
@@ -43,9 +41,7 @@ To use your own data connector you have to implement DataConnector abstract clas
 
 To store similarity module use MongoDB. 
 
-You have to run MongoDB server and provide it's host and port to the module
-
-### 
+You have to run MongoDB server and provide its host, port, database and collection to the module in `config.env` file
 
 ## Running from the source code
 
@@ -60,7 +56,6 @@ It's recommended to use virtual environment while using module
 If you don't have `venv` installed run (ex. for Ubuntu)
 ```
 sudo apt-get install python3-venv
-
 ```
 then create and activate virtual environment
 ```
@@ -73,30 +68,63 @@ Run
 ```
 pip install -r user_similarity_near_calculator/requirements.txt
 ```
-### 3. Create google auth default credentials
-These credentials needed to access Google Cloud Storage data with public NEAR tx data from Metronomo
-The easiest method is to run
 
-```gcloud auth application-default login --no-launch-browser```
+### 3. Change config.env
 
-and then copy authentication link to browser and then copy code from browser to shell.
+env-files:
+- [config.env](#configenv) - need to change
+- [static_config.env](#static_configenv) - better not to change
 
-For other ways to create credentials see
+#### config.env
 
-[https://cloud.google.com/docs/authentication/provide-credentials-adc](https://cloud.google.com/docs/authentication/provide-credentials-adc)
+Variables to access MongoDB server. You HAVE to set your own
+
+```
+- MONGO_HOST - host of mongodb server to write similarities data to
+- MONGO_PORT - port of mongodb server  to write similarities data to
+- MONGO_DATABASE  - mongo database name to write similarities data to
+- MONGO_COLLECTION  - mongo collection name to write similarities data to
+```
+
+Dates choosing. You might use any START_DATE and DATE_RANGE as you want
+```
+- START_DATE - the last date of the dates period in `ddmmyyyy` format
+- DATES_RANGE - number of days to take into power users calculation. For example, if start date is 12122022 and range 30 then dates will be since 13-11-2022 to 12-12-2022 inclusively
+```
+#### static_config.env
+Better not to change them. But if you want to change - do it on your own risk.
+```
+ - USE_PUBLIC_DATA
+ 
+# Flag to user publicly available NEAR blockchain data.
+# If `True` data from Metronomo public bucket will be used
+# If `False` - you HAVE to write your own class to get the data from your own storage 
+
+```
+
+Config file with environment variables to get public NEAR data from Metronomo cloud storage. DO NOT CHANGE
+```
+- METRONOMO_PUBLIC_DATA_PROJECT
+- METRONOMO_PUBLIC_DATA_BUCKET_NAME
+- METRONOMO_PUBLIC_DATA_NETWORK
+- METRONOMO_PUBLIC_DATA_GRANULARITY
+```
+
+Variables to configure data removal for similarity calculation.
+
+Change with caution, preferably not change. Leaving popular contracts in calculation will lead to exponential memory and time complexity.
+
+```
+REMOVE_CONTRACTS - these contracts will be removed from similarity calculation (and from user vector representation)
+REMOVE_CONTRACTS_PERCENTILE - Percentile of number overall contract interactions. Contracts in this boundary will be left in calculation. Contracts outside - will be removed
+REMOVE_WALLETS_PERCENTILE - Percentile of number of overall user interactions. Wallets in this boundary will be left in calculation. Wallets outside - will be removed
+```
 
 ### 4. Run the module
 
-```python3 -m user_similarity_near_calculator -p -s 31012023 -r 30```
+```python3 -m user_similarity_near_calculator```
 
-### 5. Possible options:
-
-- `-p`, `--public-data` to use module with public data
-- `-s`, `--start_date` the last date of the dates period in `ddmmyyyy` format
-- `-r`, `--date_range` number of days to take into power users calculation. For example, if start date is 12122022 and range 30 then dates will be since 13-11-2022 to 12-12-2022 inclusively
-- `-b`, `--similarity_bucket` - bucket to use to store the similarity data.
-- `-l`, `--similarity_blob` - blob to store similarity bucket. No need to create blob upfront, it will be created (or replaced) while running the module.
-- `-d`, `--similarity_token_json_path` - json key which will be used to get access to the bucket. Currently, only token json authentication is supported. [More detail on how to create json key file](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
+Similarity result will be stored in MongoDB on host, port provided in config.env, in database and collections provided in config.env
 
 ## Running from Docker image
 # TODO: CHANGE
