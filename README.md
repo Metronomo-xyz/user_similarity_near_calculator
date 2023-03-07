@@ -43,6 +43,37 @@ To store similarity module use MongoDB.
 
 You have to run MongoDB server and provide its host, port, database and collection to the module in `.env` file
 
+## Running from Docker image
+It's the easiest way to run the module
+
+### 1. Create .env file
+
+Copy `.env` file from `https://github.com/Metronomo-xyz/user_similarity_near_calculator`
+
+Put it on your machine
+
+Change values in .env file like described [below](#env)
+
+### 2. Pull image from docker
+
+```
+sudo docker pull randromtk/user_similarity_near_calculator:dev
+```
+
+### 3. Run docker container
+
+```
+sudo docker run -it --env-file <path to .env file> <image tag>
+```
+
+- `<path to .env file>` - path to file, that you created [before](#1createenvfile)
+- `<image tag>` - image tag. Might be obtained by running `sudo docker images` command
+
+example:
+```
+sudo docker run -it --env-file new.env fd32c3c27e35
+```
+
 ## Running from the source code
 
 ### 0. Clone repository
@@ -72,7 +103,7 @@ pip install -r user_similarity_near_calculator/requirements.txt
 ### 3. Set environmental variables
 
 env-files:
-- [.env](#configenv) - Need to take file from current repository as example, change it, and then provide path to it while running module with `--env-file` or `-e` option.
+- [.env](#env) - Need to take file from current repository as example, change it, and keep it in module directory (in the same directory as `__main__.py`)
 - [static_config.env](#static_configenv) - better not to change
 
 #### .env
@@ -126,5 +157,3 @@ REMOVE_WALLETS_PERCENTILE - Percentile of number of overall user interactions. W
 
 Similarity result will be stored in MongoDB on host, port provided in .env, in database and collections provided in .env
 
-## Running from Docker image
-# TODO: CHANGE

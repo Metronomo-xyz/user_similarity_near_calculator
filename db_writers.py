@@ -18,10 +18,11 @@ class MongoWriter():
         collection = db[collection]
         wallet_set = set([s[0] for s in similarity])
 
+        print("Creating json data. It might take a while")
         tm0 = time.time()
         json_data = [{"wallet_1": str(s[0]), "wallet_2": str(s[1]), "similarity": str(s[2])} for s in similarity]
         tm1 = time.time()
-        print("Creating json_data took " +str(tm1-tm0))
+        print("Creating json data took " +str(tm1-tm0))
 
         # TODO: poor performance, need to optimize
         print("Mongo : " + str(self.client.host) + ":"+str(self.client.port))
