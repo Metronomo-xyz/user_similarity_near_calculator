@@ -17,19 +17,22 @@ class MongoWriter():
         collection = db[collection]
         wallet_set = set([s[0] for s in similarity])
 
-        print("Creating document to write to mongo. Can take a while.")
         # TODO: poor performance, need to optimize
+        print("Inserting to mongo. Can take a while.")
+        c=1
+        total = len(wallet_set)
         tm0 = time.time()
-        json_data = [{"wallet_1": str(e), "similarities": [{"wallet_2": str(s[1]), "similarity": str(s[2])} for s in similarity if s[0] == e]} for e in set(wallet_set)]
+        for w in wallet_set:
+            if(c%1000 == 0):
+                print(str(c) + " of " +str(total))
+            wallet_similarities = [{"wallet_2": str(s[1]), "similarity": str(s[2])} for s in similarity if (s[0]==w)]
+            try:
+                collection.update_many({"wallet_1": w}, {"$set": {"similarities" : wallet_similarities}}, upsert=True)
+            except Exception as e:
+                print(e)
+                sys.exit(1)
+            c+=1
         tm1 = time.time()
-        print("Document creation took : " + str(tm1-tm0))
-        try:
-            tm0 = time.time()
-            responces = collection.insert_many(json_data)
-            tm1 = time.time()
-        except Exception as e:
-            print(e)
-            sys.exit(1)
 
         print("Similarity is written to the MongoDB : " + str(self.client.HOST) + "." + str(db.name) + "." + str(collection.name))
         print("Mongo insert took " + str(tm1 - tm0) + " seconds")
