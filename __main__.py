@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from user_similarity_near_calculator import events_data_connectors as dc
 from user_similarity_near_calculator import similarity
 from user_similarity_near_calculator import db_writers
-
+import getopt
 
 def check_type_conversion(value_, type_):
     if not value_:
@@ -20,8 +20,22 @@ def check_type_conversion(value_, type_):
 
 if __name__ == '__main__':
     load_dotenv("user_similarity_near_calculator/static_config.env")
-    load_dotenv("user_similarity_near_calculator/config.env")
 
+    # loading environmental variables from provided --env-file
+    argv = sys.argv[1:]
+    options = "e:"
+    long_options = ["env-file="]
+    env_file_path = ""
+    try:
+        opts, args = getopt.getopt(argv, options, long_options)
+        for opt, value in opts:
+            if opt in ("-e", "--env-file"):
+                env_file_path = value
+                load_dotenv(env_file_path)
+    except getopt.GetoptError as e:
+        print('Error while parsing command line arguments : ' + str(e))
+
+    # reading environmental variables
     with_public_data = (os.getenv("USE_PUBLIC_DATA") == "True")
     try:
         start_date = datetime.datetime.strptime(os.getenv("START_DATE"), "%d%m%Y")
@@ -62,14 +76,20 @@ if __name__ == '__main__':
     mongo_database = check_type_conversion(os.getenv("MONGO_DATABASE"), str)
     mongo_collection = check_type_conversion(os.getenv("MONGO_COLLECTION"), str)
 
+    # generating dates rane
     dates = [start_date - datetime.timedelta(days=x) for x in range(dates_range)]
     print("Dates : " +  ",".join([str(d) for d in dates]))
+
+    # creating connector to public Near data storage
     gcs_connector = dc.MetronomoTXCloudStorageConnector(dates, with_public_data=with_public_data, bucket_name=bucket_name, network=network, granularity=granularity)
 
+    # retrieving data
     data = gcs_connector.getData()
     print("Data loaded")
 
+    # calculating similatiry
     zipped_similarity = similarity.calculateSimilarity(data, remove_wallets_percentile, remove_contracts_percentile, remove_contracts)
 
+    # writing similarity to MongoDB
     mongo_writer = db_writers.MongoWriter(mongo_host, mongo_port)
     mongo_writer.writeSimilarityToCollection(zipped_similarity, mongo_database, mongo_collection)

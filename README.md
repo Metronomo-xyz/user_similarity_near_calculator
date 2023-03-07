@@ -72,7 +72,7 @@ pip install -r user_similarity_near_calculator/requirements.txt
 ### 3. Change config.env
 
 env-files:
-- [config.env](#configenv) - need to change
+- [config.env](#configenv) - Need to take file from current repository as example, change it, and then provide path to it while running module with `--env-file` or `-e` option.
 - [static_config.env](#static_configenv) - better not to change
 
 #### config.env
@@ -122,7 +122,7 @@ REMOVE_WALLETS_PERCENTILE - Percentile of number of overall user interactions. W
 
 ### 4. Run the module
 
-```python3 -m user_similarity_near_calculator```
+```python3 -m user_similarity_near_calculator --env-file <path to config.env>```
 
 Similarity result will be stored in MongoDB on host, port provided in config.env, in database and collections provided in config.env
 
