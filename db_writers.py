@@ -39,5 +39,5 @@ class MongoWriter():
         except Exception as e:
             print(e)
 
-        print("Similarity is written to the MongoDB : " + str(self.client.HOST) + "." + str(db.name) + "." + str(collection.name))
+        print("Similarity is written to the MongoDB : " + str(self.client.address) + "." + str(db.name) + "." + str(collection.name))
         print("Mongo insert took " + str(tm1 - tm0) + " seconds")
